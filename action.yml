@@ -4,19 +4,31 @@ description: Sets up SimCube Nucleus.
 inputs:
   setupDotNet:
     description: Boolean flag which declares if dotnet should be setup.
-    required: true
+    required: false
     default: 'true'
+  dotnetVersion:
+    description: Boolean flag which declares if dotnet should be setup.
+    required: false
+    default: '7.0.x'
   checkout:
     description: Boolean flag which declares if git checkout should take place or not by this script.
-    required: true
+    required: false
     default: 'true'
-  installRequired:
-    description: Boolean flag which declares if should install required tools.
-    required: true
+  installNucleus:
+    description: Boolean flag which declares if should install Nucleus.Cli
+    required: false
     default: 'true'
+  installSonarScanner:
+    description: Boolean flag which declares if should install Nucleus.Cli
+    required: false
+    default: 'false'
+  addNugetSource:
+    description: Boolean flag indicates if should add nuget source.
+    required: false
+    default: 'false'
   PAT:
     description: PAT for read packages to get nucleus while its private.
-    required: true
+    required: false
     default: ''
 
 runs:
@@ -26,16 +38,20 @@ runs:
     - if: ${{ inputs.setupDotNet == 'true' }}
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: ${{ inputs.dotnetVersion }}
         
-    - if: >
-        ${{ inputs.installRequired == 'true' }} && ${{ inputs.PAT != '' }}
+    - if: ${{ inputs.addNugetSource == 'true' }} && ${{ inputs.PAT != '' }}
       shell: bash
-      run: |
-        dotnet nuget add source "https://nuget.pkg.github.com/SimCubeLtd/index.json" -n simcube-github -u prom3theu5 -p ${{ inputs.PAT }} --store-password-in-clear-text
-        dotnet tool update -g Nucleus.Cli
-        dotnet tool update -g dotnet-sonarscanner
+      run: dotnet nuget add source "https://nuget.pkg.github.com/SimCubeLtd/index.json" -n simcube-github -u prom3theu5 -p ${{ inputs.PAT }} --store-password-in-clear-text
         
+    - if: ${{ inputs.installNucleus == 'true' }}
+      shell: bash
+      run: dotnet tool update -g Nucleus.Cli
+        
+    - if: ${{ inputs.installSonarScanner == 'true' }}
+      shell: bash
+      run: dotnet tool update -g dotnet-sonarscanner
+                
     - if: ${{ inputs.checkout == 'true' }}
       uses: actions/checkout@v3
       with:
