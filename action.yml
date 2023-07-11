@@ -46,11 +46,15 @@ runs:
         
     - if: ${{ inputs.installNucleus == 'true' }}
       shell: bash
-      run: dotnet tool update -g Nucleus.Cli
+      run: |
+        dotnet nuget locals http-cache --clear
+        dotnet tool update -g Nucleus.Cli
         
     - if: ${{ inputs.installSonarScanner == 'true' }}
       shell: bash
-      run: dotnet tool update -g dotnet-sonarscanner
+      run: |
+        dotnet nuget locals http-cache --clear
+        dotnet tool update -g dotnet-sonarscanner
                 
     - if: ${{ inputs.checkout == 'true' }}
       uses: actions/checkout@v3
