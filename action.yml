@@ -1,0 +1,42 @@
+name: Nucleus
+description: Sets up SimCube Nucleus.
+
+inputs:
+  setupDotNet:
+    description: Boolean flag which declares if dotnet should be setup.
+    required: true
+    default: 'true'
+  checkout:
+    description: Boolean flag which declares if git checkout should take place or not by this script.
+    required: true
+    default: 'true'
+  installRequired:
+    description: Boolean flag which declares if should install required tools.
+    required: true
+    default: 'true'
+  PAT:
+    description: PAT for read packages to get nucleus while its private.
+    required: true
+    default: ''
+
+runs:
+  using: composite
+  steps:
+   
+    - if: ${{ inputs.setupDotNet == 'true' }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+        
+    - if: >
+        ${{ inputs.installRequired == 'true' }} && ${{ inputs.PAT != '' }}
+      shell: bash
+      run: |
+        dotnet nuget add source "https://nuget.pkg.github.com/SimCubeLtd/index.json" -n simcube-github -u prom3theu5 -p ${{ inputs.PAT }} --store-password-in-clear-text
+        dotnet tool update -g Nucleus.Cli
+        dotnet tool update -g dotnet-sonarscanner
+        
+    - if: ${{ inputs.checkout == 'true' }}
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
