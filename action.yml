@@ -9,7 +9,7 @@ inputs:
   dotnetVersion:
     description: Boolean flag which declares if dotnet should be setup.
     required: false
-    default: '7.0.x'
+    default: '8.0.x'
   checkout:
     description: Boolean flag which declares if git checkout should take place or not by this script.
     required: false
